@@ -69,7 +69,7 @@ class ModelCheckpoint:
         return False
     
     def save_checkpoint(self, model: torch.nn.Module, optimizer: torch.optim.Optimizer, 
-                    epoch: int, metrics: Dict[str, float], dataset_name: str) -> Path:
+                    epoch: int, metrics: Dict[str, float], dataset_name: str, config: dict) -> Path:
         """Save model checkpoint"""
         checkpoint_path = self.checkpoint_dir / f"{dataset_name}_checkpoint_best.pth"
         last_checkpoint_path = self.checkpoint_dir / f"{dataset_name}_checkpoint_last.pth"
@@ -80,9 +80,10 @@ class ModelCheckpoint:
             'optimizer_state_dict': optimizer.state_dict(),
             'metrics': metrics,
             'best_score': self.best_score,
-            'dataset_name': dataset_name
+            'dataset_name': dataset_name,
+            'config': config  # ADD THIS LINE
         }
-        
+            
         # Store the result to avoid calling should_save() twice
         is_best = self.should_save(metrics)
         
@@ -168,8 +169,8 @@ class TSDiffTrainer:
         try:
             dataset = get_dataset(
                 self.config["dataset"],
-                prediction_length=24,  # Standardized for all datasets
-                regenerate=True
+                prediction_length=2,  # Standardized for all datasets
+                regenerate=True 
             )
             
             # Auto-correct frequency if needed
@@ -182,8 +183,8 @@ class TSDiffTrainer:
                 self.config["freq"] = actual_freq
             
             # Verify prediction length
-            assert dataset.metadata.prediction_length == 24, \
-                f"Expected prediction_length=24, got {dataset.metadata.prediction_length}"
+            assert dataset.metadata.prediction_length == 2, \
+                f"Expected prediction_length=2, got {dataset.metadata.prediction_length}"
             
             logger.info(f"Dataset {self.config['dataset']} loaded successfully")
             logger.info(f"  Frequency: {dataset.metadata.freq}")
@@ -681,8 +682,9 @@ class TSDiffTrainer:
                 # Save checkpoint
                 # Save checkpoint
                 checkpoint_path = self.checkpoint_manager.save_checkpoint(
-                    self.model, self.optimizer, epoch, metrics, self.config['dataset']  # ← Direct reference
+                    self.model, self.optimizer, epoch, metrics, self.config['dataset'], self.config  # Add self.config
                 )
+
 
 
                 # Update best checkpoint if this was the best
@@ -735,7 +737,7 @@ def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(description="Train TSDiff model")
     parser.add_argument("-c", "--config", type=str, required=True, help="Path to YAML config file")
-    parser.add_argument("--out_dir", type=str, default="./logs", help="Output directory")
+    parser.add_argument("--out_dir", type=str, default="./logs_2hr", help="Output directory")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, 
                        help="Path to checkpoint file to resume from")
     return parser.parse_args()
@@ -746,7 +748,7 @@ def load_config(config_path: str, args: argparse.Namespace) -> Dict[str, Any]:
         config = yaml.safe_load(f)
 
     # Add command line arguments to config
-    if hasattr(args, 'resume_from_checkpoint') and args.resume_from_checkpoint:  # ✅ Fixed
+    if hasattr(args, 'resume_from_checkpoint') and args.resume_from_checkpoint: 
         config["resume_from_checkpoint"] = args.resume_from_checkpoint
 
     return config
