@@ -3,6 +3,11 @@
 TSDiff Training Script for Continual Learning
 Optimized for single-frequency (hourly) datasets
 """
+import os
+
+# Set CUDA path for apt-installed CUDA toolkit
+os.environ['CUDA_PATH'] = '/usr'
+os.environ['CUDA_HOME'] = '/usr'
 
 import logging
 import argparse
@@ -35,7 +40,7 @@ from uncond_ts_diff.utils import (
     filter_metrics,
     MaskInput,
 )
-
+FORECAST_LENGTH = 50
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -169,7 +174,7 @@ class TSDiffTrainer:
         try:
             dataset = get_dataset(
                 self.config["dataset"],
-                prediction_length=2,  # Standardized for all datasets
+                prediction_length=FORECAST_LENGTH,  # Standardized for all datasets
                 regenerate=True 
             )
             
@@ -183,8 +188,8 @@ class TSDiffTrainer:
                 self.config["freq"] = actual_freq
             
             # Verify prediction length
-            assert dataset.metadata.prediction_length == 2, \
-                f"Expected prediction_length=2, got {dataset.metadata.prediction_length}"
+            assert dataset.metadata.prediction_length == FORECAST_LENGTH, \
+                f"Expected prediction_length={FORECAST_LENGTH}, got {dataset.metadata.prediction_length}"
             
             logger.info(f"Dataset {self.config['dataset']} loaded successfully")
             logger.info(f"  Frequency: {dataset.metadata.freq}")
@@ -737,7 +742,7 @@ def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(description="Train TSDiff model")
     parser.add_argument("-c", "--config", type=str, required=True, help="Path to YAML config file")
-    parser.add_argument("--out_dir", type=str, default="./logs_2hr", help="Output directory")
+    parser.add_argument("--out_dir", type=str, default=f"./logs_{FORECAST_LENGTH}hr", help="Output directory")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, 
                        help="Path to checkpoint file to resume from")
     return parser.parse_args()

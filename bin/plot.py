@@ -3,6 +3,11 @@
 TSDiff Continual Learning Comparison Plots
 Clean script with time series selection capability
 """
+import os
+
+# Set CUDA path for apt-installed CUDA toolkit
+os.environ['CUDA_PATH'] = '/usr'
+os.environ['CUDA_HOME'] = '/usr'
 
 
 import logging
@@ -205,27 +210,27 @@ class TSDiffPlotter:
             ax.set_ylim(ylim)
         
         # Formatting
-        ax.set_title(f'{method_name}', fontsize=14)
+        # ax.set_title(f'{method_name}', fontsize=14)
         ax.xaxis.set_visible(False)
         ax.grid(True, alpha=0.3)
         
         # Only show y-axis and legend on leftmost subplot
-        if is_leftmost:
-            ax.legend(fontsize=10, loc='best')
-        else:
-            ax.set_yticklabels([])
-            ax.tick_params(axis='y', which='both', left=False, labelleft=False)
+        # if is_leftmost:
+        #     ax.legend(fontsize=10, loc='best')
+        # else:
+        #     ax.set_yticklabels([])
+        #     ax.tick_params(axis='y', which='both', left=False, labelleft=False)
 
 
 def create_continual_learning_plots(start_series: int = 0, num_series: int = 1):
     """Create 5-method comparison plots with configurable series selection"""
     
     checkpoints = {
-        "2 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_2hr/pedestrian_counts_checkpoint_best.pth",
-        "12 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_12hr/pedestrian_counts_checkpoint_best.pth",
-        "24 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_24hr/pedestrian_counts_checkpoint_best.pth",
-        "48 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_48hr/pedestrian_counts_checkpoint_best.pth",
-        "96 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_96hr/pedestrian_counts_checkpoint_best.pth",
+        # "2 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_2hr/pedestrian_counts_checkpoint_best.pth",
+        "50 hour": "/local/home0/anandr/diffusion/Continual_TSDiff/logs_50hr/pedestrian_counts_checkpoint_best.pth",
+        # "24 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_24hr/pedestrian_counts_checkpoint_best.pth",
+        # "48 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_48hr/pedestrian_counts_checkpoint_best.pth",
+        # "96 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_96hr/pedestrian_counts_checkpoint_best.pth",
         # "L2 Reg": "/export/home/anandr/diffusion/Continual_TSDiff/full_experiments_3/order_1_kdd_cup_pedestrian_counts_uber_tlc/method_score_l2/lambda_reg_2.0/task_1_kdd_cup_2018_without_missing/kdd_cup_2018_without_missing_checkpoint_best.pth",
     }
     
@@ -290,16 +295,22 @@ def create_continual_learning_plots(start_series: int = 0, num_series: int = 1):
         global_ylim = None
         logger.warning("No y-values collected, using automatic scaling")
     
-    # Create subplots
-    if num_series == 1:
-        fig, axes = plt.subplots(1, 5, figsize=(25, 5))
+# Determine figure size
+    figsize = (25, 5 * num_series) if num_series > 1 else (25, 5)
+    num_methods = len(checkpoints)
+
+    if num_series == 1 and num_methods == 1:
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
+        axes = np.array([[ax]])
+    elif num_series == 1:
+        fig, axes = plt.subplots(1, num_methods, figsize=figsize, squeeze=False)
+    elif num_methods == 1:
+        fig, axes = plt.subplots(num_series, 1, figsize=figsize, squeeze=False)
     else:
-        fig, axes = plt.subplots(num_series, 5, figsize=(25, 5 * num_series))
-        if num_series == 1:
-            axes = axes.reshape(1, -1)
-    
-    logger.info("Second pass: Creating plots with synchronized y-limits...")
-    
+        fig, axes = plt.subplots(num_series, num_methods, figsize=figsize, squeeze=False)
+
+        logger.info("Second pass: Creating plots with synchronized y-limits...")
+        
     # Second pass: plot with synchronized y-limits
     for method_idx, method_name in enumerate(checkpoints.keys()):
         if method_name not in all_forecast_data:
@@ -360,7 +371,7 @@ def main():
     logger.info("Starting TSDiff continual learning comparison")
     
     # Configure which time series to plot
-    create_continual_learning_plots(start_series=30, num_series=5)
+    create_continual_learning_plots(start_series=100, num_series=5)
     
     logger.info("Plotting completed successfully!")
 

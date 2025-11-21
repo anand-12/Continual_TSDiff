@@ -6,11 +6,11 @@ use_lags: true
 dataset: pedestrian_counts
 freq: H
 context_length: 336
-prediction_length: 2
+prediction_length: 50
 lr: 5.e-4
 init_skip: true
 gradient_clip_val: 0.5
-max_epochs: 200
+max_epochs: 100
 num_batches_per_epoch: 128
 batch_size: 64
 dropout_rate: 0.0
