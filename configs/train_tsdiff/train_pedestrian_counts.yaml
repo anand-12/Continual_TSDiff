@@ -6,7 +6,7 @@ use_lags: true
 dataset: pedestrian_counts
 freq: H
 context_length: 336
-prediction_length: 50
+prediction_length: 48
 lr: 5.e-4
 init_skip: true
 gradient_clip_val: 0.5
@@ -16,7 +16,7 @@ batch_size: 64
 dropout_rate: 0.0
 lambda_reg: 0.0
 score_loss_type: l2  # ← ADD THIS LINE
-sampler: ddpm
+sampler: ddim
 sampler_params:
   guidance: quantile
   scale: 2

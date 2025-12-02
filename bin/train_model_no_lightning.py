@@ -40,7 +40,7 @@ from uncond_ts_diff.utils import (
     filter_metrics,
     MaskInput,
 )
-FORECAST_LENGTH = 50
+FORECAST_LENGTH = 48
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,

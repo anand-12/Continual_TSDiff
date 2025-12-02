@@ -226,20 +226,16 @@ def create_continual_learning_plots(start_series: int = 0, num_series: int = 1):
     """Create 5-method comparison plots with configurable series selection"""
     
     checkpoints = {
-        # "2 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_2hr/pedestrian_counts_checkpoint_best.pth",
-        "50 hour": "/local/home0/anandr/diffusion/Continual_TSDiff/logs_50hr/pedestrian_counts_checkpoint_best.pth",
-        # "24 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_24hr/pedestrian_counts_checkpoint_best.pth",
-        # "48 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_48hr/pedestrian_counts_checkpoint_best.pth",
-        # "96 hour": "/export/home/anandr/diffusion/Continual_TSDiff/logs_96hr/pedestrian_counts_checkpoint_best.pth",
-        # "L2 Reg": "/export/home/anandr/diffusion/Continual_TSDiff/full_experiments_3/order_1_kdd_cup_pedestrian_counts_uber_tlc/method_score_l2/lambda_reg_2.0/task_1_kdd_cup_2018_without_missing/kdd_cup_2018_without_missing_checkpoint_best.pth",
+        "48 hour": "/local/home0/anandr/diffusion/Continual_TSDiff/logs_48hr/pedestrian_counts_checkpoint_best.pth",
     }
     
-    config = yaml.safe_load(open("configs/eval_continual.yaml"))
+    # config = yaml.safe_load(open("configs/eval_continual.yaml"))
+    config = yaml.safe_load(open("/local/home0/anandr/diffusion/Continual_TSDiff/configs/train_tsdiff/train_pedestrian_counts.yaml"))
     target_dataset = "pedestrian_counts"
     
     # Set seeds for reproducible results
-    torch.manual_seed(42)
-    np.random.seed(42)
+    torch.manual_seed(0)
+    np.random.seed(0)
     
     # Store all forecast data for y-limit calculation
     all_forecast_data = {}
@@ -371,7 +367,7 @@ def main():
     logger.info("Starting TSDiff continual learning comparison")
     
     # Configure which time series to plot
-    create_continual_learning_plots(start_series=100, num_series=5)
+    create_continual_learning_plots(start_series=5, num_series=5)
     
     logger.info("Plotting completed successfully!")
 
